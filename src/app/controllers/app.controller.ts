@@ -11,6 +11,30 @@ export class AppController {
 
   private initializeRouter() {
 
+    this.router.get("/login", (req: Request, res: Response) => {
+      res.render("login");
+    });
+
+    this.router.post("/login", (req: any, res: Response) => {
+      req.session.user = req.body.username;
+      res.redirect("/");
+    });
+
+    this.router.post("/logout", (req: any, res: Response) => {
+      req.session.destroy = req.body.username;
+      res.redirect("/");
+    });
+
+    // PROTECT THE HOMEPAGE
+
+    this.router.use((req: any, res: Response, next) => {
+      if (req.session.user) {
+        next();
+      } else {
+        res.redirect("/login");
+      } 
+    });
+
     // Serve the home page
     this.router.get("/", (req: Request, res: Response) => {
       try {
