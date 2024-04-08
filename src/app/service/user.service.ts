@@ -1,14 +1,15 @@
+// user.service.ts
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 export class UserService {
-
   private prisma: PrismaClient;
-  cunstructor() {
+
+  constructor() {
     this.prisma = new PrismaClient();
   }
 
-  function createUser(username: string, email: string, password: string){
+  async createUser(username: string, email: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.prisma.user.create({
       data: {
@@ -18,11 +19,16 @@ export class UserService {
       },
     });
     return user;
-    
   }
 
-  function authenticateUser(username: string, password: string) {
-
+  async authenticateUser(username: string, password: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
+    if (user && await bcrypt.compare(password, user.password)) {
+      return user;
+    } else {
+      return null;
+    }
   }
-
 }
